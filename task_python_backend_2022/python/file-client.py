@@ -1,7 +1,7 @@
 import requests
-import json
+import click
+
 SERVER = "localhost:8000" # adress without http:// and with port if is not 80
-DEFAULT_FILE = ""
 
 def get_file_stats(server, file):    
     try:
