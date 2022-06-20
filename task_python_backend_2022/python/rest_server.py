@@ -17,7 +17,6 @@ mimetypes.init()
 
 class RestResource(object):
     def on_get_stat(self, req, resp, file):
-        print(file)
         try:
             file_name = files_db[file]
             file_stats = stat(f"files/{file_name}")
@@ -43,6 +42,7 @@ class RestResource(object):
     def on_get_read(self, req, resp, file):
         try:
             file_name = files_db[file]
+            resp.stream = open(f"files/{file_name}", "rb")
         except KeyError:
             raise falcon.HTTPNotFound(
                 title="Non-existent UUID.\n", description="Please use only UUID which exists.")
@@ -56,7 +56,7 @@ class RestResource(object):
         resp.status = "200 OK"
         resp.set_header('Content-Disposition', file_name)
         resp.set_header('Content-Type', mimetype)
-        resp.stream = open(f"files/{file_name}", "rb")
+
 
 
 app = falcon.App(media_type=falcon.MEDIA_JSON)
