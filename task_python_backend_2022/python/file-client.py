@@ -3,33 +3,39 @@ from shutil import which
 import requests
 import click
 
-SERVER = "localhost:8000" # adress without http:// and with port if is not 80
 
 def stat(server, UUID):
     try:
         resp = requests.get(f"http://{server}/file/{UUID}/stat/")
     except requests.ConnectionError:
         print("Connection error")
-    if resp.status_code == 200:
-        data = resp.json()
-        return f"""
-        Information about file:
-        File name is: {data["name"]}
-        File size in bytes is: {data["size"]}
-        File mimetype is: {data["mimetype"]}
-        File was created at (different on every OS): {data["create_datetime"]}\n
-        """
+    if resp.status_code == 200: 
+        try:
+            data = resp.json()
+            return f"""
+            Information about file:
+            File name is: {data["name"]}
+            File size in bytes is: {data["size"]}
+            File mimetype is: {data["mimetype"]}
+            File was created at (different on every OS): {data["create_datetime"]}\n
+            """
+        except KeyError as e:
+            e.message = "Some data from server are missing, chceck it in some client to analyze data"
+            raise
     else:
-        print(resp.reason)
+        return resp.reason
+
 
 def read(server, UUID):
+    """I left this function really simple, but the main bug is, that you can download content from whole internet :-)"""
     try:
         resp = requests.get(f"http://{server}/file/{UUID}/read/")
     except requests.ConnectionError:
         print("Connection error")
     return resp.content
 
-@click.command()
+
+@click.command(no_args_is_help=True)
 @click.argument('method', type=click.Choice(['stat', 'read']))
 @click.argument('UUID')
 @click.option('--backend', "backend", help="Set a backend to be used, choices are grpc and rest. Default is grpc.", default="grpc")
@@ -47,7 +53,7 @@ def cli(backend, grpc_server, base_url, output, method, uuid):
                 with open(output, "wb") as f:
                     f.write(read(base_url, uuid))
     else:
-        print("Not implemented yet")
+        print("grpc backend is not implemented yet, try rest backend.")
 
 if __name__ == '__main__':
     cli()
