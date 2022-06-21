@@ -58,7 +58,6 @@ class RestResource(object):
         resp.set_header('Content-Type', mimetype)
 
 
-
 app = falcon.App(media_type=falcon.MEDIA_JSON)
 
 rest_resource = RestResource()

@@ -20,8 +20,9 @@ def stat(server, UUID):
             File was created at (different on every OS): {data["create_datetime"]}\n
             """
         except KeyError as e:
-            e.message = "Some data from server are missing, chceck it in some client to analyze data"
+            e.message = "Some data from server are missing, check it in some client to analyze data"
             raise
+        # I can handle here more exceptions and work with KeyError little more in detail ...
     else:
         return resp.reason
 
