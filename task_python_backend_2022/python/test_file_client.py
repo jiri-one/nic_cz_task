@@ -1,8 +1,6 @@
 import requests
 import pytest
-file_client = __import__("file-client") # because we have filename with dash
-read = file_client.read
-stat = file_client.stat
+from file_client import read, stat
 # end of imports
 
 class MockResponseForStat:
@@ -60,7 +58,7 @@ def test_stat_for_keyerror(monkeypatch):
 class MockResponseForRead:
     content = open("files/flag_cze.svg", "rb").read()
 
-def test_stat_for_normal_result(monkeypatch):
+def test_read_for_normal_result(monkeypatch):
     def mock_get(*args, **kwargs):
         return MockResponseForRead()
 
@@ -68,3 +66,5 @@ def test_stat_for_normal_result(monkeypatch):
 
     result = read("fakeurl", "fake_uuid") 
     assert result == open("files/flag_cze.svg", "rb").read()
+
+# I can write test to write real file and compare it with origin file, but it will be allmost same like last test

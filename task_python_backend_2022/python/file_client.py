@@ -42,17 +42,14 @@ def read(server, UUID):
 @click.option('--backend', "backend", help="Set a backend to be used, choices are grpc and rest. Default is grpc.", default="grpc")
 @click.option('--grpc-server', "grpc_server", help="Set a host and port of the gRPC server. Default is localhost:50051.", default="localhost:50051")
 @click.option('--base-url', "base_url", help="Set a base URL for a REST server. Default is localhost:8000", default="localhost:8000")
-@click.option('--output', "output", help="Set the file where to store the output. Default is -, i.e. the stdout.", default="-")
+@click.option('--output', "output", help="Set the file where to store the output. Default is -, i.e. the stdout.", type=click.File('wb'), default="-")
 def cli(backend, grpc_server, base_url, output, method, uuid):
     if backend == "rest":
         if method == "stat":
             print(stat(base_url, uuid))
         elif method == "read":
-            if output == "-":
-                print(read(base_url, uuid))
-            else:
-                with open(output, "wb") as f:
-                    f.write(read(base_url, uuid))
+            file = read(base_url, uuid)
+            output.write(file)
     else:
         print("grpc backend is not implemented yet, try rest backend.")
 
