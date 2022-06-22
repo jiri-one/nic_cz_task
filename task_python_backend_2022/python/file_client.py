@@ -52,6 +52,3 @@ def cli(backend, grpc_server, base_url, output, method, uuid):
             output.write(file)
     else:
         print("grpc backend is not implemented yet, try rest backend.")
-
-if __name__ == '__main__':
-    cli()
