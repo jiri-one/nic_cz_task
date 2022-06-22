@@ -22,7 +22,7 @@ class DomainFlag(Base):
     outzone = Column(Boolean, default=False)
     delete_candidate = Column(Boolean, default=False)
 
-engine = create_engine("postgresql://")
+engine = create_engine("sqlite://", echo=True, future=True) # now I am on Windows (my business notebook) and is really difficult to setup postgresql here :).
 Base.metadata.create_all(engine)
 
 print(select(Domain.domain_name, DomainFlag.domain_name).where(Domain.registred == True, DomainFlag.expired == False))
