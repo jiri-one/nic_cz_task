@@ -5,7 +5,7 @@ read = file_client.read
 stat = file_client.stat
 # end of imports
 
-class MockResponseForReadFunction:
+class MockResponseForStat:
     status_code = 200
     reason = "Not found"
 
@@ -19,7 +19,7 @@ class MockResponseForReadFunction:
 
 def test_stat_for_normal_result(monkeypatch):
     def mock_get(*args, **kwargs):
-        return MockResponseForReadFunction()
+        return MockResponseForStat()
 
     monkeypatch.setattr(requests, "get", mock_get)
 
@@ -33,7 +33,7 @@ def test_stat_for_normal_result(monkeypatch):
             """
     
 def test_stat_for_status_other_then_200(monkeypatch):
-    local_mock = MockResponseForReadFunction()
+    local_mock = MockResponseForStat()
     local_mock.status_code = 404
     def mock_get(*args, **kwargs):
         return local_mock
@@ -44,7 +44,7 @@ def test_stat_for_status_other_then_200(monkeypatch):
     assert result == "Not found"
 
 def test_stat_for_keyerror(monkeypatch):
-    local_mock = MockResponseForReadFunction()
+    local_mock = MockResponseForStat()
     def another_json_mock():
         return {}
     local_mock.json = another_json_mock
@@ -55,3 +55,16 @@ def test_stat_for_keyerror(monkeypatch):
     
     with pytest.raises(KeyError):
         stat("fakeurl", "fake_uuid") 
+
+
+class MockResponseForRead:
+    content = open("files/flag_cze.svg", "rb").read()
+
+def test_stat_for_normal_result(monkeypatch):
+    def mock_get(*args, **kwargs):
+        return MockResponseForRead()
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    result = read("fakeurl", "fake_uuid") 
+    assert result == open("files/flag_cze.svg", "rb").read()

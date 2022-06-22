@@ -8,7 +8,7 @@ def stat(server, UUID):
     try:
         resp = requests.get(f"http://{server}/file/{UUID}/stat/")
     except requests.ConnectionError:
-        print("Connection error")
+        return print("Connection error")
     if resp.status_code == 200: 
         try:
             data = resp.json()
@@ -32,7 +32,7 @@ def read(server, UUID):
     try:
         resp = requests.get(f"http://{server}/file/{UUID}/read/")
     except requests.ConnectionError:
-        print("Connection error")
+        return print("Connection error")
     return resp.content
 
 
@@ -42,13 +42,13 @@ def read(server, UUID):
 @click.option('--backend', "backend", help="Set a backend to be used, choices are grpc and rest. Default is grpc.", default="grpc")
 @click.option('--grpc-server', "grpc_server", help="Set a host and port of the gRPC server. Default is localhost:50051.", default="localhost:50051")
 @click.option('--base-url', "base_url", help="Set a base URL for a REST server. Default is localhost:8000", default="localhost:8000")
-@click.option('--output', "output", help="Set the file where to store the output. Default is the stdout.", default="stdout")
+@click.option('--output', "output", help="Set the file where to store the output. Default is -, i.e. the stdout.", default="-")
 def cli(backend, grpc_server, base_url, output, method, uuid):
     if backend == "rest":
         if method == "stat":
             print(stat(base_url, uuid))
         elif method == "read":
-            if output == "stdout":
+            if output == "-":
                 print(read(base_url, uuid))
             else:
                 with open(output, "wb") as f:
