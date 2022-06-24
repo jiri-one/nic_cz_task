@@ -1,5 +1,4 @@
 import falcon
-import waitress
 from uuid import UUID
 import json
 from os import stat
@@ -35,7 +34,6 @@ class RestResource(object):
             "size": file_stats.st_size,
             "mimetype": mimetype,
             "create_datetime": datetime.fromtimestamp(file_stats.st_mtime).isoformat(" ", "seconds")
-
         }
         resp.text = json.dumps(file_info)
 
