@@ -29,7 +29,7 @@ class FileService(pb2_grpc.FileServicer):
             "name": file_name,
             "size": file_stats.st_size,
             "mimetype": mimetype,
-            "create_datetime": Timestamp(seconds=int(file_stats.st_mtime), nanos=int(file_stats.st_mtime % 1 * 1e9))
+            "create_datetime": Timestamp(seconds=int(file_stats.st_mtime), nanos=int(file_stats.st_mtime % 1 * 1e9)) # I am not using nanos in client ...
         }
         
         print(request.uuid.value)
