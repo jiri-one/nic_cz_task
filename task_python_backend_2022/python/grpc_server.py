@@ -14,7 +14,6 @@ def get_file_chunks(filename, chunk_size):
     with open(f"files/{filename}", 'rb') as f:
         while True:
             piece = f.read(chunk_size)
-            print(f"tohle je jeden {piece}")
             if len(piece) == 0:
                 break
             yield pb2.ReadReply(data={"data": piece})
@@ -43,8 +42,6 @@ class FileService(pb2_grpc.FileServicer):
             "mimetype": mimetype,
             "create_datetime": Timestamp(seconds=int(file_stats.st_mtime), nanos=int(file_stats.st_mtime % 1 * 1e9)) # I am not using nanos in client ...
         }
-        
-        print(request.uuid.value)
         
         return pb2.StatReply(data=file_info)
     

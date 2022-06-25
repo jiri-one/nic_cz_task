@@ -81,7 +81,7 @@ def read_grpc(server, uuid_arg):
 @click.option('--base-url', "base_url", help="Set a base URL for a REST server. Default is localhost:8000", default="localhost:8000")
 @click.option('--output', "output", help="Set the file where to store the output. Default is -, i.e. the stdout.", type=click.File('wb'), default="-")
 def cli(backend, grpc_server, base_url, output, method, uuid):
-    if backend == "rest":
+    if backend == "rest": # if I will do it in production, I will care more about exeptions messages here, but grpc backend has it nicer ;)
         if method == "stat":
             print(stat_rest(base_url, uuid))
         elif method == "read":
