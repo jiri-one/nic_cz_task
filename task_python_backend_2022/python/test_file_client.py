@@ -1,6 +1,6 @@
 import requests
 import pytest
-from file_client import read, stat
+from file_client import read_rest, stat_rest
 # end of imports
 
 class MockResponseForStat:
@@ -21,7 +21,7 @@ def test_stat_for_normal_result(monkeypatch):
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    result = stat("fakeurl", "fake_uuid") 
+    result = stat_rest("fakeurl", "fake_uuid") 
     assert result == f"""
             Information about file:
             File name is: flag_cze.svg
@@ -38,7 +38,7 @@ def test_stat_for_status_other_then_200(monkeypatch):
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    result = stat("fakeurl", "fake_uuid") 
+    result = stat_rest("fakeurl", "fake_uuid") 
     assert result == "Not found"
 
 def test_stat_for_keyerror(monkeypatch):
@@ -52,10 +52,11 @@ def test_stat_for_keyerror(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
     
     with pytest.raises(KeyError):
-        stat("fakeurl", "fake_uuid") 
+        stat_rest("fakeurl", "fake_uuid") 
 
 
 class MockResponseForRead:
+    status_code = 200
     content = open("files/flag_cze.svg", "rb").read()
 
 def test_read_for_normal_result(monkeypatch):
@@ -64,7 +65,7 @@ def test_read_for_normal_result(monkeypatch):
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    result = read("fakeurl", "fake_uuid") 
+    result = read_rest("fakeurl", "fake_uuid") 
     assert result == open("files/flag_cze.svg", "rb").read()
 
 # I can write test to write real file and compare it with origin file, but it will be allmost same like last test
