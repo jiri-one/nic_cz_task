@@ -1,14 +1,26 @@
 import grpc
 from concurrent import futures
-import service_file_pb2_grpc as pb2_grpc
 import service_file_pb2 as pb2
-from rest_server import files_db
+import service_file_pb2_grpc as pb2_grpc
+from rest_server import files_db # same DB like in rest_server
 from uuid import UUID
 from os import stat as os_stat
 import mimetypes
 from google.protobuf.timestamp_pb2 import Timestamp
 
+# start of helper functions
+def get_file_chunks(filename, chunk_size):
+    print("jsem ve funkci get_file_chunks")
+    with open(f"files/{filename}", 'rb') as f:
+        while True:
+            piece = f.read(chunk_size)
+            print(f"tohle je jeden {piece}")
+            if len(piece) == 0:
+                break
+            yield pb2.ReadReply(data={"data": piece})
 
+
+# main class for grpc server
 class FileService(pb2_grpc.FileServicer):
     def stat(self, request, context):
         try:
@@ -33,7 +45,30 @@ class FileService(pb2_grpc.FileServicer):
         }
         
         print(request.uuid.value)
+        
         return pb2.StatReply(data=file_info)
+    
+    
+    def read(self, request, context):
+        try:
+            file = UUID(request.uuid.value)
+            file_name = files_db[file]
+            file_stats = os_stat(f"files/{file_name}")
+        except ValueError:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "UUID is invalid")
+        except KeyError:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, "UUID not found")
+        except FileNotFoundError:
+            context.abort(grpc.StatusCode.NOT_FOUND, "File not found")
+        
+        try:
+            chunk_size = request.size
+            if chunk_size == 0: chunk_size = 1024
+        except: # here is acceptable to not identify exception ... but I don't like it :-)
+            chunk_size = 1024
+        
+        return get_file_chunks(file_name, chunk_size)
+
 
 
 def serve():
