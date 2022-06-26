@@ -10,7 +10,6 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 # start of helper functions
 def get_file_chunks(filename, chunk_size):
-    print("jsem ve funkci get_file_chunks")
     with open(f"files/{filename}", 'rb') as f:
         while True:
             piece = f.read(chunk_size)

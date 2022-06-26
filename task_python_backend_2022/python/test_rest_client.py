@@ -15,7 +15,7 @@ class MockResponseForStat:
                 "create_datetime": "2022-06-21 07:00:47", # datetime is problem, it behaves differently on each OS, but for this unit test I can let it be
                 }
 
-def test_stat_for_normal_result(monkeypatch):
+def test_stat_rest_for_normal_result(monkeypatch):
     def mock_get(*args, **kwargs):
         return MockResponseForStat()
 
@@ -30,7 +30,7 @@ def test_stat_for_normal_result(monkeypatch):
             File was created at (different on every OS): 2022-06-21 07:00:47\n
             """
     
-def test_stat_for_status_other_then_200(monkeypatch):
+def test_stat_rest_for_status_other_then_200(monkeypatch):
     local_mock = MockResponseForStat()
     local_mock.status_code = 404
     def mock_get(*args, **kwargs):
@@ -41,7 +41,7 @@ def test_stat_for_status_other_then_200(monkeypatch):
     result = stat_rest("fakeurl", "fake_uuid") 
     assert result == "Not found"
 
-def test_stat_for_keyerror(monkeypatch):
+def test_stat_rest_for_keyerror(monkeypatch):
     local_mock = MockResponseForStat()
     def another_json_mock():
         return {}
@@ -59,7 +59,7 @@ class MockResponseForRead:
     status_code = 200
     content = open("files/flag_cze.svg", "rb").read()
 
-def test_read_for_normal_result(monkeypatch):
+def test_read_rest_for_normal_result(monkeypatch):
     def mock_get(*args, **kwargs):
         return MockResponseForRead()
 
@@ -68,4 +68,4 @@ def test_read_for_normal_result(monkeypatch):
     result = read_rest("fakeurl", "fake_uuid") 
     assert result == open("files/flag_cze.svg", "rb").read()
 
-# I can write test to write real file and compare it with origin file, but it will be allmost same like last test
+# I can write test to write real file and compare it with origin file, but it will be allmost same like last test, in grpc I have it ...
