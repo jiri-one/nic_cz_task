@@ -6,6 +6,7 @@ import grpc
 import service_file_pb2 as pb2
 import service_file_pb2_grpc as pb2_grpc
 from datetime import datetime
+import json
 
 
 def stat_rest(server, uuid_arg):
@@ -28,7 +29,7 @@ def stat_rest(server, uuid_arg):
             raise
         # I can handle here more exceptions and work with KeyError little more in detail ...
     else:
-        return resp.reason
+        return json.loads(resp.text)["title"]
 
 
 def read_rest(server, uuid_arg):
@@ -40,7 +41,7 @@ def read_rest(server, uuid_arg):
     if resp.status_code == 200:
         return resp.content
     else:
-        return resp.reason
+        return json.loads(resp.text)["title"]
 
 def stat_grpc(server, uuid_arg):
     channel = grpc.insecure_channel(server)

@@ -20,9 +20,10 @@ class RestResource(object):
             file_name = files_db[file]
             file_stats = stat(f"files/{file_name}")
         except KeyError:
-            raise falcon.HTTPNotFound(title="Non-existent UUID.\n", description="Please use only UUID which exists.")
+            raise falcon.HTTPNotFound(title="UUID not found")
         except FileNotFoundError:
-            raise falcon.HTTPNotFound(title="Non-existent file.\n", description="UUID exists but file doesn't exists.")
+            raise falcon.HTTPNotFound(title="File not found")
+        # equivalent of 'grpc.StatusCode.INVALID_ARGUMENT, "UUID is invalid"' is here handled by Falcon and is returned '404 Not Found'
         try:
             mimetype = mimetypes.types_map[f".{file_name.split('.')[-1]}"]
         except KeyError:
@@ -42,11 +43,10 @@ class RestResource(object):
             file_name = files_db[file]
             resp.stream = open(f"files/{file_name}", "rb")
         except KeyError:
-            raise falcon.HTTPNotFound(
-                title="Non-existent UUID.\n", description="Please use only UUID which exists.")
+            raise falcon.HTTPNotFound(title="UUID not found")
         except FileNotFoundError:
-            raise falcon.HTTPNotFound(
-                title="Non-existent file.\n", description="UUID exists but file doesn't exists.")
+            raise falcon.HTTPNotFound(title="File not found")
+        # equivalent of 'grpc.StatusCode.INVALID_ARGUMENT, "UUID is invalid"' is here handled by Falcon and is returned '404 Not Found'
         try:
             mimetype = mimetypes.types_map[f".{file_name.split('.')[-1]}"]
         except KeyError:
