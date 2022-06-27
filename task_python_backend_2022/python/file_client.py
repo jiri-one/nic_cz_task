@@ -3,8 +3,8 @@ from shutil import which
 import requests
 import click
 import grpc
-import service_file_pb2 as pb2
-import service_file_pb2_grpc as pb2_grpc
+from service_file_pb2 import StatRequest, ReadRequest, Uuid
+from service_file_pb2_grpc import FileStub
 from datetime import datetime
 import json
 
@@ -33,7 +33,7 @@ def stat_rest(server, uuid_arg):
 
 
 def read_rest(server, uuid_arg):
-    """I left this function really simple, but the main bug is, that you can download content from whole internet :-) and reading and writing is better with chunks, but chunks I have used in grpc version, so I am showing another way too."""
+    """I left this function really simple, but the main bug is, that you can download content from whole internet :-) and reading and writing is better with chunks, but chunks I have used in grpc version, so I am showing another (not so good ...) way too."""
     try:
         resp = requests.get(f"http://{server}/file/{uuid_arg}/read/")
     except requests.ConnectionError:
@@ -45,8 +45,8 @@ def read_rest(server, uuid_arg):
 
 def stat_grpc(server, uuid_arg):
     channel = grpc.insecure_channel(server)
-    client = pb2_grpc.FileStub(channel)
-    req = pb2.StatRequest(uuid=pb2.Uuid(value=uuid_arg))
+    client = FileStub(channel)
+    req = StatRequest(uuid=Uuid(value=uuid_arg))
     try:
         resp = client.stat(request=req)
     except grpc.RpcError as rpc_error:
@@ -69,8 +69,8 @@ def stat_grpc(server, uuid_arg):
 
 def read_grpc(server, uuid_arg):
     channel = grpc.insecure_channel(server)
-    client = pb2_grpc.FileStub(channel)
-    req = pb2.ReadRequest(uuid=pb2.Uuid(value=uuid_arg), size=512) # size is here hardcoded, because user settings was not demanded
+    client = FileStub(channel)
+    req = ReadRequest(uuid=Uuid(value=uuid_arg), size=512) # size is here hardcoded, because user settings was not demanded
     return client.read(request=req)
 
 @click.command(no_args_is_help=True)
@@ -99,7 +99,7 @@ def cli(backend, grpc_server, base_url, output, method, uuid):
                     if not chunk.data.data:
                         break
                     output.write(chunk.data.data)
-            # because of generator on other side and because of click.File ReadBuffer if for me easier to handle exceptions here
+            # because of generator on other side and because of click.File ReadBuffer is for me easier to handle exceptions here
             except grpc.RpcError as rpc_error:
                 if (rpc_error.code() == grpc.StatusCode.UNAVAILABLE
                 or rpc_error.code() == grpc.StatusCode.INVALID_ARGUMENT

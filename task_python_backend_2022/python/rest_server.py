@@ -46,7 +46,7 @@ class RestResource(object):
             raise falcon.HTTPNotFound(title="UUID not found")
         except FileNotFoundError:
             raise falcon.HTTPNotFound(title="File not found")
-        # equivalent of 'grpc.StatusCode.INVALID_ARGUMENT, "UUID is invalid"' is here handled by Falcon and is returned '404 Not Found'
+        # equivalent of 'grpc.StatusCode.INVALID_ARGUMENT' or 'UUID is invalid' is here handled by Falcon itself and it return '404 Not Found', I can change it of course
         try:
             mimetype = mimetypes.types_map[f".{file_name.split('.')[-1]}"]
         except KeyError:

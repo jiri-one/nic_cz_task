@@ -1,11 +1,12 @@
 import requests
 import pytest
 from file_client import read_rest, stat_rest
+import json
 # end of imports
 
 class MockResponseForStat:
     status_code = 200
-    reason = "Not found"
+    text = json.dumps({"title": "Not found"})
 
     @staticmethod
     def json():
