@@ -71,8 +71,7 @@ def read_grpc(server, uuid_arg):
     channel = grpc.insecure_channel(server)
     client = pb2_grpc.FileStub(channel)
     req = pb2.ReadRequest(uuid=pb2.Uuid(value=uuid_arg), size=512) # size is here hardcoded, because user settings was not demanded
-    resp = client.read(request=req)
-    return resp
+    return client.read(request=req)
 
 @click.command(no_args_is_help=True)
 @click.argument('method', type=click.Choice(['stat', 'read']))
@@ -96,11 +95,11 @@ def cli(backend, grpc_server, base_url, output, method, uuid):
             print(stat_grpc(grpc_server, uuid))
         elif method == "read":
             try:
-                resp = read_grpc(grpc_server, uuid)
-                for chunk in resp:
+                for chunk in read_grpc(grpc_server, uuid):
                     if not chunk.data.data:
                         break
                     output.write(chunk.data.data)
+            # because of generator on other side and because of click.File ReadBuffer if for me easier to handle exceptions here
             except grpc.RpcError as rpc_error:
                 if (rpc_error.code() == grpc.StatusCode.UNAVAILABLE
                 or rpc_error.code() == grpc.StatusCode.INVALID_ARGUMENT
